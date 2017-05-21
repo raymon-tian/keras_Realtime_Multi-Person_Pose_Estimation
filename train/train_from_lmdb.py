@@ -9,7 +9,7 @@ import cv2 as cv
 import ConfigParser
 from keras.optimizers import SGD
 from keras.callbacks import ModelCheckpoint,ProgbarLogger
-from keras.applications import VGG19
+from keras.applications.vgg19 import VGG19
 import json
 
 from get_model import get_model
@@ -17,7 +17,40 @@ from COCOLmdb import COCOLmdb
 from utils import visualize_body_part,mkdir
 from config_reader import config_train_reader
 
+def initialize_model_from_vgg(model):
+    vgg_model = VGG19(include_top=False,weights='imagenet')
 
+    w = vgg_model.get_layer(index=1).get_weights()
+    model.get_layer(name='conv1_1').set_weights(w)
+
+    w = vgg_model.get_layer(index=2).get_weights()
+    model.get_layer(name='conv1_2').set_weights(w)
+
+    w = vgg_model.get_layer(index=3).get_weights()
+    model.get_layer(name='pool1_stage1').set_weights(w)
+
+    w = vgg_model.get_layer(index=4).get_weights()
+    model.get_layer(name='conv2_1').set_weights(w)
+
+    w = vgg_model.get_layer(index=5).get_weights()
+    model.get_layer(name='conv2_2').set_weights(w)
+
+    w = vgg_model.get_layer(index=6).get_weights()
+    model.get_layer(name='pool2_stage1').set_weights(w)
+
+    w = vgg_model.get_layer(index=7).get_weights()
+    model.get_layer(name='conv3_1').set_weights(w)
+
+    w = vgg_model.get_layer(index=8).get_weights()
+    model.get_layer(name='conv3_2').set_weights(w)
+
+    w = vgg_model.get_layer(index=9).get_weights()
+    model.get_layer(name='conv3_3').set_weights(w)
+
+    w = vgg_model.get_layer(index=10).get_weights()
+    model.get_layer(name='conv3_4').set_weights(w)
+
+    return model
 
 def generate_arrays_from_file(params_transform,params_train):
 
@@ -31,40 +64,14 @@ def generate_arrays_from_file(params_transform,params_train):
         cnt = 0
         X = []
         Y = []
-        print('load a new batch  ================================  \n')                                                                                                                                                                                                                                                                                                                                                                                                                                 
+        GT = []
+        # print('================================  load a new batch  \n')
 
         for idx,(key, value) in enumerate(lmdb_cursor):
             datum.ParseFromString(value)
             label = datum.label
             data = caffe.io.datum_to_array(datum)
-            """
-            print data.shape
-            # print(type(data))
-            # print label
-            meta_data = data[3,:,:]
-            # print(meta_data.dtype)
-            # print(struct.unpack('10s',meta_data[0:10,:]))
-            # print(meta_data.shape)
-            # str = [ chr(meta_data[0][i]) for i in range(meta_data.shape[1])]
-            # print str
-            # str = ''.join(str).replace('\x00','')
-            # print str,len(str)
-            print struct.unpack('2f',meta_data[1,0:8])
-            print struct.unpack('3B',meta_data[2,0:3])
-            print struct.unpack('2f',meta_data[3, 0:8])
-            print struct.unpack('1f',meta_data[4,0:4])[0]
-            joints = []
-            for i in range(3):
-                temp = struct.unpack('17f', meta_data[5 + i, 0:17 * 4])
-                print '*************'
-                print temp
-                joints.append(temp)
 
-            r = zip(*joints)
-            r = np.array(r)
-            print r.shape
-            print r
-            """
             cocoImg = COCOLmdb(data,params_transform)
             # cocoImg.set_meta_data()
             cocoImg.add_neck()
@@ -76,8 +83,8 @@ def generate_arrays_from_file(params_transform,params_train):
             cocoImg.aug_flip()
             # cocoImg.visualize()
             cocoImg.set_ground_truth()
-            cocoImg.visualize_pafs_single_figure()
-            sample,label = cocoImg.get_sample_label()
+            # cocoImg.visualize_pafs_single_figure()
+            sample,label,gt = cocoImg.get_sample_label()
             # print(sample.shape,label.shape)
             # cocoImg.visualize_heat_maps()
             # cocoImg.visualize()
@@ -95,16 +102,21 @@ def generate_arrays_from_file(params_transform,params_train):
             # cocoImg.visualize()
             X.append(sample)
             Y.append(label)
+            GT.append(gt)
             cnt += 1
             if cnt == batch_size:
                 cnt = 0
                 X = np.array(X)
                 Y = np.array(Y)
-                GT = [Y for i in range(6)]
+                GT = np.array(GT)
+                GTs = [GT for i in range(6)]
                 # print(X.shape,Y.shape)
-                yield (dict(image=X,label=Y),GT)
+                yield (dict(image=X,label=Y),GTs)
                 X = []
                 Y = []
+                GT = []
+                # print('================================  load a new batch  \n')
+
 
 if __name__ == '__main__':
 
@@ -112,7 +124,6 @@ if __name__ == '__main__':
     genenor = generate_arrays_from_file(params_transform,params_train)
     # r = genenor.next()
     # exit()
-    # print(len(r))
     name_experiment = params_train['name_experiment']
     # exit()
     batch_size = params_train['batch_size']
@@ -125,7 +136,7 @@ if __name__ == '__main__':
                                    save_weights_only=True)
     progbarLogger = ProgbarLogger()
     model = get_model(params_transform,params_train)
-
+    model = initialize_model_from_vgg(model)
     """
     COCO数据集中
     train2014  : 82783 个样本

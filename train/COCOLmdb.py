@@ -479,6 +479,8 @@ class COCOLmdb(object):
 
     def __putVecMaps(self,centerA,centerB,accumulate_vec_map,count):
         # print('__putVecMaps center  ',centerA,centerB)
+        centerA = centerA.astype(float)
+        centerB = centerB.astype(float)
 
         stride = self.transform['stride']
         crop_size_y = self.transform['crop_size_y']
@@ -489,7 +491,10 @@ class COCOLmdb(object):
         centerB = centerB / stride
         centerA = centerA / stride
         limb_vec = centerB - centerA
-        limb_vec_unit = limb_vec / np.linalg.norm(limb_vec)
+        norm = np.linalg.norm(limb_vec)
+        if(norm == 0.0):
+            return accumulate_vec_map,count
+        limb_vec_unit = limb_vec / norm
         # print('the unit vector of the limb =========>   ',limb_vec_unit)
 
         min_x = max(int(round(min(centerA[0], centerB[0]) - thre)), 0)
@@ -525,10 +530,17 @@ class COCOLmdb(object):
         return accumulate_vec_map,count
 
     def get_sample_label(self):
+        # necessary 一定要有!!!
         temp = self.img.astype(float)
-        sample = (self.img - 128)/256.0
+        # sample range in [-0.5,0.5]
+        sample = (temp - 128)/256.0
         label = self.gt
-        return (sample,label)
+
+        pafs = np.multiply(self.gt[:,:,0:38],self.gt[:,:,57:95])
+        vecs = np.multiply(self.gt[:,:,38:57],self.gt[:,:,95:])
+        gt = np.concatenate((pafs,vecs),axis=2)
+
+        return (sample,label,gt)
 
     def visualize_heat_maps(self):
         heat_maps = self.gt[:,:,95:]

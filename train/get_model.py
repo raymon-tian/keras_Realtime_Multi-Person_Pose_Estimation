@@ -1,7 +1,8 @@
 from keras.models import Model
-from keras.layers import Conv2D,Input,MaxPool2D,ZeroPadding2D,concatenate,Lambda,multiply
+from keras.layers import Conv2D,Input,MaxPool2D,ZeroPadding2D,concatenate,Lambda,multiply,add
 from keras.initializers import RandomNormal,Constant
 from keras.optimizers import SGD
+import tensorflow as tf
 
 from config_reader import config_train_reader
 
@@ -31,10 +32,12 @@ def get_model(params_transform,params_train):
 
     # ground-truth
 
-    paf_weight = Lambda(lambda x: x[:, :, :, :38])(label)
-    confid_weight = Lambda(lambda x: x[:,:, :, 38:57])(label)
-    paf_temp = Lambda(lambda x: x[:,:, :, 57:95])(label)
-    confid_temp = Lambda(lambda x: x[:,:, :, 95:114])(label)
+    paf_weight = Lambda(lambda x: x[:, :, :, :38])(label)# mask
+    confid_weight = Lambda(lambda x: x[:,:, :, 38:57])(label)# mask
+    paf_temp = Lambda(lambda x: x[:,:, :, 57:95])(label)# gt
+    confid_temp = Lambda(lambda x: x[:,:, :, 95:114])(label)#gt
+
+    gt = concatenate([paf_temp, confid_temp], axis=3,name='ground-truth')
 
     # temp = concatenate([paf_weight,confid_weight],axis=3)
     # print(temp.shape)
@@ -144,13 +147,17 @@ def get_model(params_transform,params_train):
                             kernel_initializer=RandomNormal(stddev=0.00999999977648),
                             bias_initializer=Constant(), name='conv5_5_CPM_L1')(conv5_4_CPM_L1_padded)
 
-    paf_masked_stage1_L1 = multiply([conv5_5_CPM_L1,paf_temp],name='paf_masked_stage1_L1')
-    confid_masked_stage1_L2 = multiply([conv5_5_CPM_L2,confid_temp],name='confid_masked_stage1_L2')
+    paf_masked_stage1_L1 = multiply([conv5_5_CPM_L1,paf_weight],name='paf_masked_stage1_L1')
+    confid_masked_stage1_L2 = multiply([conv5_5_CPM_L2,confid_weight],name='confid_masked_stage1_L2')
 
-    pred_label_stage1 = concatenate([paf_masked_stage1_L1,confid_masked_stage1_L2,paf_temp,confid_temp],axis=3,name='pred_label_stage1')
+    pred_label_stage1 = concatenate([paf_masked_stage1_L1,confid_masked_stage1_L2],axis=3,name='s1')
+    pred_label_stage1 = Lambda(lambda x:x*-1.0)(pred_label_stage1)
+    pred_label_stage1 = add([pred_label_stage1,gt])
+    pred_label_stage1 = Lambda(lambda x:x**2)(pred_label_stage1)
+    loss1 = Lambda(lambda x:tf.reduce_sum(x),name="scalar_s1")(pred_label_stage1)
     # net_output.append(paf_masked_stage1_L1)
     # net_output.append(confid_masked_stage1_L2)
-    net_output.append(pred_label_stage1)
+    net_output.append(loss1)
 
     temp_L1 = conv5_5_CPM_L1
     temp_L2 = conv5_5_CPM_L2
@@ -222,15 +229,20 @@ def get_model(params_transform,params_train):
         temp_L1 = Mconv7_stagei_L1
         temp_L2 = Mconv7_stagei_L2
 
-        paf_masked_stagei_L1 = multiply([temp_L1, paf_temp],name='paf_masked_stage%s_L1'%(str(i)))
-        confid_masked_stagei_L2 = multiply([temp_L2, confid_temp],name='confid_masked_stage%s_L2'%(str(i)))
+        paf_masked_stagei_L1 = multiply([temp_L1, paf_weight],name='paf_masked_stage%s_L1'%(str(i)))
+        confid_masked_stagei_L2 = multiply([temp_L2, confid_weight],name='confid_masked_stage%s_L2'%(str(i)))
 
-        pred_label_stagei = concatenate([paf_masked_stagei_L1, confid_masked_stagei_L2, paf_temp, confid_temp], axis=3,
-                                        name='pred_label_stage%s'%(str(i)))
+        pred_label_stagei = concatenate([paf_masked_stagei_L1, confid_masked_stagei_L2], axis=3,
+                                        name='s%s'%(str(i)))
 
+        pred_label_stagei = Lambda(lambda x:x*-1.0)(pred_label_stagei)
+        pred_label_stagei = add([pred_label_stagei,gt])
+        pred_label_stagei = Lambda(lambda x:x**2)(pred_label_stagei)
+        # pred_label_stagei = Lambda(lambda x:tf.reduce_sum(x))(pred_label_stagei)
+        lossi = Lambda(lambda x:tf.reduce_sum(x),name="scalar_s%s"%(str(i)))(pred_label_stagei)
         # net_output.append(paf_masked_stagei_L1)
         # net_output.append(confid_masked_stagei_L2)
-        net_output.append(pred_label_stagei)
+        net_output.append(lossi)
 
     model = Model(inputs=net_input,outputs=net_output)
     model.compile(optimizer=SGD(lr=0.000040,momentum=0.9,decay=0.0005),
