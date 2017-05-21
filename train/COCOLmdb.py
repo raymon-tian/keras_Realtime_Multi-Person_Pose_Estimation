@@ -4,6 +4,7 @@ import numpy as np
 import random
 import cv2 as cv
 import matplotlib.pyplot as plt
+from numpy import ma
 from utils import visualize_body_part,visualize_img
 
 
@@ -19,6 +20,8 @@ class COCOLmdb(object):
     """
 
     def __init__(self,raw_data,transform):
+        self.mid_1 = [2, 9, 10, 2, 12, 13, 2, 3, 4, 3, 2, 6, 7, 6, 2, 1, 1, 15, 16]
+        self.mid_2 = [9, 10, 11, 12, 13, 14, 3, 4, 5, 17, 6, 7, 8, 18, 1, 15, 16, 17, 18]
         self.raw_data = raw_data
         self.transform = transform
         self.aug_params = dict()
@@ -423,8 +426,10 @@ class COCOLmdb(object):
                         center = self.anno['joint_others'][j,i, :2]
                         self.gt[:,:,num_parts+1+i+39] = self.__putGaussianMaps(center,self.gt[:,:,num_parts+1+i])
             # pafs
-            mid_1 = [2, 9, 10, 2, 12, 13, 2, 3, 4, 3, 2, 6, 7, 6, 2, 1, 1, 15, 16]
-            mid_2 = [9, 10, 11, 12, 13, 14, 3, 4, 5, 17, 6, 7, 8, 18, 1, 15, 16, 17, 18]
+            mid_1 = self.mid_1
+            mid_2 = self.mid_2
+            # mid_1 = [2, 9, 10, 2, 12, 13, 2, 3, 4, 3, 2, 6, 7, 6, 2, 1, 1, 15, 16]
+            # mid_2 = [9, 10, 11, 12, 13, 14, 3, 4, 5, 17, 6, 7, 8, 18, 1, 15, 16, 17, 18]
             thre = 1
             for i in range(19):
                 # limb的两个端点必须可视化
@@ -540,6 +545,71 @@ class COCOLmdb(object):
         axarr[2].imshow(self.img[:, :, [2, 1, 0]])
         axarr[2].imshow(heatmap, alpha=.5)
         plt.show()
+
+    def visualize_pafs_single_figure(self):
+
+        stride = self.transform['stride']
+        pafs = self.gt[:, :, 57:95]
+        idx = 0
+        plt.figure()
+        for i in range(19):
+            U = pafs[:, :, idx]
+            V = pafs[:, :, idx + 1]
+            U = cv.resize(U, (0, 0), fx=stride, fy=stride, interpolation=cv.INTER_CUBIC)
+            V = cv.resize(V, (0, 0), fx=stride, fy=stride, interpolation=cv.INTER_CUBIC)
+            # self.visualize_paf(U, V)
+            U = U * -1
+            # V = vector_f_y[:, :, 17]
+            X, Y = np.meshgrid(np.arange(U.shape[1]), np.arange(U.shape[0]))
+            M = np.zeros(U.shape, dtype='bool')
+            M[U ** 2 + V ** 2 < 0.5 * 0.5] = True
+            U = ma.masked_array(U, mask=M)
+            V = ma.masked_array(V, mask=M)
+
+            # 1
+
+            plt.imshow(self.img[:, :, [2, 1, 0]], alpha=.5)
+            s = 5
+            Q = plt.quiver(X[::s, ::s], Y[::s, ::s], U[::s, ::s], V[::s, ::s],
+                           scale=50, headaxislength=4, alpha=.5, width=0.001, color='r')
+            idx += 2
+        # fig = plt.gcf()
+        # fig.set_size_inches(20, 20)
+        plt.show()
+
+    def visualize_pafs(self):
+        stride = self.transform['stride']
+        pafs = self.gt[:,:,57:95]
+        idx = 0
+        for i in range(19):
+            U = pafs[:,:,idx]
+            V = pafs[:,:,idx+1]
+            U = cv.resize(U,(0,0),fx=stride,fy=stride,interpolation=cv.INTER_CUBIC)
+            V = cv.resize(V,(0,0),fx=stride,fy=stride,interpolation=cv.INTER_CUBIC)
+            self.visualize_paf(U,V)
+            idx +=2
+
+    def visualize_paf(self,U,V):
+
+        U = U * -1
+        # V = vector_f_y[:, :, 17]
+        X, Y = np.meshgrid(np.arange(U.shape[1]), np.arange(U.shape[0]))
+        M = np.zeros(U.shape, dtype='bool')
+        M[U ** 2 + V ** 2 < 0.5 * 0.5] = True
+        U = ma.masked_array(U, mask=M)
+        V = ma.masked_array(V, mask=M)
+
+        # 1
+        plt.figure()
+        plt.imshow(self.img[:, :, [2, 1, 0]], alpha=.5)
+        s = 5
+        Q = plt.quiver(X[::s, ::s], Y[::s, ::s], U[::s, ::s], V[::s, ::s],
+                       scale=50, headaxislength=4, alpha=.5, width=0.001, color='r')
+
+        fig = plt.gcf()
+        fig.set_size_inches(20, 20)
+        plt.show()
+
 
 
 

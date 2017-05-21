@@ -9,6 +9,7 @@ import cv2 as cv
 import ConfigParser
 from keras.optimizers import SGD
 from keras.callbacks import ModelCheckpoint,ProgbarLogger
+from keras.applications import VGG19
 import json
 
 from get_model import get_model
@@ -75,6 +76,7 @@ def generate_arrays_from_file(params_transform,params_train):
             cocoImg.aug_flip()
             # cocoImg.visualize()
             cocoImg.set_ground_truth()
+            cocoImg.visualize_pafs_single_figure()
             sample,label = cocoImg.get_sample_label()
             # print(sample.shape,label.shape)
             # cocoImg.visualize_heat_maps()
@@ -108,8 +110,9 @@ if __name__ == '__main__':
 
     params_transform,params_train = config_train_reader()
     genenor = generate_arrays_from_file(params_transform,params_train)
-    r = genenor.next()
-    print(len(r))
+    # r = genenor.next()
+    # exit()
+    # print(len(r))
     name_experiment = params_train['name_experiment']
     # exit()
     batch_size = params_train['batch_size']
@@ -132,7 +135,7 @@ if __name__ == '__main__':
     这里设置，我们训练model的总样本数为 6000000
     """
 
-    model.fit_generator(generator=generate_arrays_from_file(params_transform,params_train),
+    model.fit_generator(generator=genenor,
                         steps_per_epoch=params_train['steps_per_epoch'],
                         epochs=params_train['epochs'],
                         verbose=1,
