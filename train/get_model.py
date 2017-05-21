@@ -151,10 +151,10 @@ def get_model(params_transform,params_train):
     confid_masked_stage1_L2 = multiply([conv5_5_CPM_L2,confid_weight],name='confid_masked_stage1_L2')
 
     pred_label_stage1 = concatenate([paf_masked_stage1_L1,confid_masked_stage1_L2],axis=3,name='s1')
-    pred_label_stage1 = Lambda(lambda x:x*-1.0)(pred_label_stage1)
+    pred_label_stage1 = Lambda(lambda x:tf.multiply(x,-1.0))(pred_label_stage1)
     pred_label_stage1 = add([pred_label_stage1,gt])
-    pred_label_stage1 = Lambda(lambda x:x**2)(pred_label_stage1)
-    loss1 = Lambda(lambda x:tf.reduce_sum(x),name="scalar_s1")(pred_label_stage1)
+    pred_label_stage1 = Lambda(lambda x:tf.square(x))(pred_label_stage1)
+    loss1 = Lambda(lambda x:tf.reduce_sum(x,keep_dims=True),name="scalar_s1")(pred_label_stage1)
     # net_output.append(paf_masked_stage1_L1)
     # net_output.append(confid_masked_stage1_L2)
     net_output.append(loss1)
@@ -173,7 +173,7 @@ def get_model(params_transform,params_train):
                             kernel_initializer=RandomNormal(stddev=0.00999999977648),
                             bias_initializer=Constant(), name='Mconv1_stage%s_L1'%(str(i)))(concat_stage_padded)
         Mconv1_stagei_L1_padded = ZeroPadding2D(padding=(3,3))(Mconv1_stagei_L1)
-        Mconv2_stagei_L1 = Conv2D(filters=128, kernel_size=(7, 7), activation='relu',
+        Mconv2_stagei_L1 = Conv2D(filters=128, kernel_size=(7, 7), ascalar_sctivation='relu',
                                   kernel_initializer=RandomNormal(stddev=0.00999999977648),
                                   bias_initializer=Constant(), name='Mconv2_stage%s_L1'%(str(i)))(Mconv1_stagei_L1_padded)
         Mconv2_stagei_L1_padded = ZeroPadding2D(padding=(3, 3))(Mconv2_stagei_L1)
@@ -235,11 +235,11 @@ def get_model(params_transform,params_train):
         pred_label_stagei = concatenate([paf_masked_stagei_L1, confid_masked_stagei_L2], axis=3,
                                         name='s%s'%(str(i)))
 
-        pred_label_stagei = Lambda(lambda x:x*-1.0)(pred_label_stagei)
+        pred_label_stagei = Lambda(lambda x:tf.multiply(x,-1.0))(pred_label_stagei)
         pred_label_stagei = add([pred_label_stagei,gt])
-        pred_label_stagei = Lambda(lambda x:x**2)(pred_label_stagei)
+        pred_label_stagei = Lambda(lambda x:tf.square(x))(pred_label_stagei)
         # pred_label_stagei = Lambda(lambda x:tf.reduce_sum(x))(pred_label_stagei)
-        lossi = Lambda(lambda x:tf.reduce_sum(x),name="scalar_s%s"%(str(i)))(pred_label_stagei)
+        lossi = Lambda(lambda x:tf.reduce_sum(x,keep_dims=True),name="scalar_s%s"%(str(i)))(pred_label_stagei)
         # net_output.append(paf_masked_stagei_L1)
         # net_output.append(confid_masked_stagei_L2)
         net_output.append(lossi)

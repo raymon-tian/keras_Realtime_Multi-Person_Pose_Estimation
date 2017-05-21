@@ -109,7 +109,8 @@ def generate_arrays_from_file(params_transform,params_train):
                 X = np.array(X)
                 Y = np.array(Y)
                 GT = np.array(GT)
-                GTs = [GT for i in range(6)]
+                # GTs = [GT for i in range(6)]
+                GTs = [np.array([0.0]) for i in range(6)]
                 # print(X.shape,Y.shape)
                 yield (dict(image=X,label=Y),GTs)
                 X = []

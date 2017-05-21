@@ -2,12 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e8d732c9-23be-42de-afb8-4dc2dc46b678" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/train/train.sh" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/train/COCOLmdb.py" afterPath="$PROJECT_DIR$/train/COCOLmdb.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/train/config_train" afterPath="$PROJECT_DIR$/train/config_train" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/train/get_model.py" afterPath="$PROJECT_DIR$/train/get_model.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/train/learn.py" afterPath="$PROJECT_DIR$/train/learn.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/train/train_from_lmdb.py" afterPath="$PROJECT_DIR$/train/train_from_lmdb.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -29,8 +25,8 @@
       <file leaf-file-name="train_from_lmdb.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/train/train_from_lmdb.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="435">
-              <caret line="120" column="26" selection-start-line="120" selection-start-column="26" selection-end-line="120" selection-end-column="26" />
+            <state relative-caret-position="638">
+              <caret line="112" column="37" selection-start-line="112" selection-start-column="37" selection-end-line="112" selection-end-column="37" />
               <folding>
                 <element signature="e#14#25#0" expanded="true" />
               </folding>
@@ -51,8 +47,8 @@
       <file leaf-file-name="get_model.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/train/get_model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="210">
-              <caret line="244" column="31" selection-start-line="244" selection-start-column="26" selection-end-line="244" selection-end-column="31" />
+            <state relative-caret-position="377">
+              <caret line="177" column="102" selection-start-line="177" selection-start-column="102" selection-end-line="177" selection-end-column="102" />
               <folding>
                 <element signature="e#0#30#0" expanded="true" />
               </folding>
@@ -144,8 +140,8 @@
         <option value="$PROJECT_DIR$/train/config_train" />
         <option value="$PROJECT_DIR$/train/learn.py" />
         <option value="$PROJECT_DIR$/train/train.sh" />
-        <option value="$PROJECT_DIR$/train/train_from_lmdb.py" />
         <option value="$PROJECT_DIR$/train/COCOLmdb.py" />
+        <option value="$PROJECT_DIR$/train/train_from_lmdb.py" />
         <option value="$PROJECT_DIR$/train/get_model.py" />
       </list>
     </option>
@@ -618,8 +614,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/train/train_from_lmdb.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="435">
-          <caret line="120" column="26" selection-start-line="120" selection-start-column="26" selection-end-line="120" selection-end-column="26" />
+        <state relative-caret-position="638">
+          <caret line="112" column="37" selection-start-line="112" selection-start-column="37" selection-end-line="112" selection-end-column="37" />
           <folding>
             <element signature="e#14#25#0" expanded="true" />
           </folding>
@@ -628,8 +624,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/train/get_model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="244" column="31" selection-start-line="244" selection-start-column="26" selection-end-line="244" selection-end-column="31" />
+        <state relative-caret-position="377">
+          <caret line="177" column="102" selection-start-line="177" selection-start-column="102" selection-end-line="177" selection-end-column="102" />
           <folding>
             <element signature="e#0#30#0" expanded="true" />
           </folding>
