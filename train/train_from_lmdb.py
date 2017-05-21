@@ -102,15 +102,18 @@ def generate_arrays_from_file(params_transform,params_train):
             # cocoImg.visualize()
             X.append(sample)
             Y.append(label)
+            gt = np.zeros((1,1,1))
             GT.append(gt)
             cnt += 1
             if cnt == batch_size:
                 cnt = 0
                 X = np.array(X)
                 Y = np.array(Y)
-                GT = np.array(GT)
+                # GT = np.array(GT)
+                # GT = np.zeros((1,1,1,1))
                 # GTs = [GT for i in range(6)]
-                GTs = [np.array([0.0]) for i in range(6)]
+                GT = np.array(GT)
+                GTs = [GT for i in range(6)]
                 # print(X.shape,Y.shape)
                 yield (dict(image=X,label=Y),GTs)
                 X = []

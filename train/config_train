@@ -22,7 +22,7 @@ sigma = 7.0
 
 [params_train]
 # ===
-lmdb_path = /media/hok/raymon/gp/output/COCO_kpt/lmdb/
+lmdb_path = /media/raymon/raymon/gp/output/COCO_kpt/lmdb/
 batch_size = 10
 name_experiment = exp1
 steps_per_epoch = 12000
