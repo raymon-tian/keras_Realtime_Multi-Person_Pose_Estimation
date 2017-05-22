@@ -1,5 +1,5 @@
 from keras.models import Model
-from keras.layers import Conv2D,Input,MaxPool2D,ZeroPadding2D,concatenate,Lambda,multiply,add
+from keras.layers import Conv2D,Input,MaxPool2D,ZeroPadding2D,concatenate,Lambda,multiply,add,Reshape
 from keras.initializers import RandomNormal,Constant
 from keras.optimizers import SGD
 import tensorflow as tf
@@ -155,6 +155,7 @@ def get_model(params_transform,params_train):
     pred_label_stage1 = add([pred_label_stage1,gt])
     pred_label_stage1 = Lambda(lambda x:tf.square(x))(pred_label_stage1)
     loss1 = Lambda(lambda x:tf.reduce_sum(x,axis=[1,2,3],keep_dims=True),name="scalar_s1")(pred_label_stage1)
+    loss1 = Reshape((1,),name='final_s1')(loss1)
     # net_output.append(paf_masked_stage1_L1)
     # net_output.append(confid_masked_stage1_L2)
     net_output.append(loss1)
@@ -240,6 +241,8 @@ def get_model(params_transform,params_train):
         pred_label_stagei = Lambda(lambda x:tf.square(x))(pred_label_stagei)
         # pred_label_stagei = Lambda(lambda x:tf.reduce_sum(x))(pred_label_stagei)
         lossi = Lambda(lambda x:tf.reduce_sum(x,axis=[1,2,3],keep_dims=True),name="scalar_s%s"%(str(i)))(pred_label_stagei)
+        lossi = Reshape((1,), name='final_s%s'%(str(i)))(lossi)
+
         # net_output.append(paf_masked_stagei_L1)
         # net_output.append(confid_masked_stagei_L2)
         net_output.append(lossi)

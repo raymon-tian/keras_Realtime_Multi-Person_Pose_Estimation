@@ -102,7 +102,7 @@ def generate_arrays_from_file(params_transform,params_train):
             # cocoImg.visualize()
             X.append(sample)
             Y.append(label)
-            gt = np.zeros((1,1,1))
+            gt = np.zeros((1,))
             GT.append(gt)
             cnt += 1
             if cnt == batch_size:
