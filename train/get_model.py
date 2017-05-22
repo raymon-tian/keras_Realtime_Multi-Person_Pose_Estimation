@@ -246,7 +246,7 @@ def get_model(params_transform,params_train):
 
     model = Model(inputs=net_input,outputs=net_output)
     model.compile(optimizer=SGD(lr=0.000040,momentum=0.9,decay=0.0005),
-                  loss='mean_squared_error')
+                  loss='mean_absolute_error')
     return model
 
 
