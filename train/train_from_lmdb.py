@@ -66,60 +66,62 @@ def generate_arrays_from_file(params_transform,params_train):
         Y = []
         GT = []
         # print('================================  load a new batch  \n')
+        while(True):
+            lmdb_cursor.first()
+            for idx,(key, value) in enumerate(lmdb_cursor):
 
-        for idx,(key, value) in enumerate(lmdb_cursor):
-            datum.ParseFromString(value)
-            label = datum.label
-            data = caffe.io.datum_to_array(datum)
+                datum.ParseFromString(value)
+                label = datum.label
+                data = caffe.io.datum_to_array(datum)
 
-            cocoImg = COCOLmdb(data,params_transform)
-            # cocoImg.set_meta_data()
-            cocoImg.add_neck()
-            # cocoImg.visualize()
-            cocoImg.aug_scale()
-            # cocoImg.visualize()
-            cocoImg.aug_croppad()
-            # cocoImg.visualize()
-            cocoImg.aug_flip()
-            # cocoImg.visualize()
-            cocoImg.set_ground_truth()
-            # cocoImg.visualize_pafs_single_figure()
-            sample,label,gt = cocoImg.get_sample_label()
-            # print(sample.shape,label.shape)
-            # cocoImg.visualize_heat_maps()
-            # cocoImg.visualize()
-            # cocoImg.aug_scale()
-            # cocoImg.aug_croppad()
-            # img,anno,mask_miss,mask_all = cocoImg.get_meta_data()
-            # print(type(img))
-            # img = np.rollaxis(img,0,3)
+                cocoImg = COCOLmdb(data,params_transform)
+                # cocoImg.set_meta_data()
+                cocoImg.add_neck()
+                # cocoImg.visualize()
+                cocoImg.aug_scale()
+                # cocoImg.visualize()
+                cocoImg.aug_croppad()
+                # cocoImg.visualize()
+                cocoImg.aug_flip()
+                # cocoImg.visualize()
+                cocoImg.set_ground_truth()
+                # cocoImg.visualize_pafs_single_figure()
+                sample,label,gt = cocoImg.get_sample_label()
+                # print(sample.shape,label.shape)
+                # cocoImg.visualize_heat_maps()
+                # cocoImg.visualize()
+                # cocoImg.aug_scale()
+                # cocoImg.aug_croppad()
+                # img,anno,mask_miss,mask_all = cocoImg.get_meta_data()
+                # print(type(img))
+                # img = np.rollaxis(img,0,3)
 
-            # cocoImg.add_neck()
-            # pprint.pprint(cocoImg.anno)
-            # visualize_body_part(img,anno['joint_others'])
-            # print(anno['joint_others'].shape)
-            # cocoImg.aug_scale()
-            # cocoImg.visualize()
-            X.append(sample)
-            Y.append(label)
-            gt = np.zeros((1,))
-            GT.append(gt)
-            cnt += 1
-            if cnt == batch_size:
-                cnt = 0
-                X = np.array(X)
-                Y = np.array(Y)
-                # GT = np.array(GT)
-                # GT = np.zeros((1,1,1,1))
-                # GTs = [GT for i in range(6)]
-                GT = np.array(GT)
-                GTs = [GT for i in range(6)]
-                # print(X.shape,Y.shape)
-                yield (dict(image=X,label=Y),GTs)
-                X = []
-                Y = []
-                GT = []
-                # print('================================  load a new batch  \n')
+                # cocoImg.add_neck()
+                # pprint.pprint(cocoImg.anno)
+                # visualize_body_part(img,anno['joint_others'])
+                # print(anno['joint_others'].shape)
+                # cocoImg.aug_scale()
+                # cocoImg.visualize()
+                X.append(sample)
+                Y.append(label)
+                gt = np.zeros((1,))
+                GT.append(gt)
+                cnt += 1
+                if cnt == batch_size:
+                    cnt = 0
+                    X = np.array(X)
+                    Y = np.array(Y)
+                    # GT = np.array(GT)
+                    # GT = np.zeros((1,1,1,1))
+                    # GTs = [GT for i in range(6)]
+                    GT = np.array(GT)
+                    GTs = [GT for i in range(6)]
+                    # print(X.shape,Y.shape)
+                    yield (dict(image=X,label=Y),GTs)
+                    X = []
+                    Y = []
+                    GT = []
+                    # print('================================  load a new batch  \n')
 
 
 if __name__ == '__main__':
@@ -127,6 +129,8 @@ if __name__ == '__main__':
     params_transform,params_train = config_train_reader()
     genenor = generate_arrays_from_file(params_transform,params_train)
     # r = genenor.next()
+    # genenor.next()
+    # genenor.next()
     # exit()
     name_experiment = params_train['name_experiment']
     # exit()
@@ -141,6 +145,7 @@ if __name__ == '__main__':
     progbarLogger = ProgbarLogger()
     model = get_model(params_transform,params_train)
     model = initialize_model_from_vgg(model)
+    model.load_weights(filepath='./exp1/exp1_weights_00_1849.1228.hdf5')
     """
     COCO数据集中
     train2014  : 82783 个样本
