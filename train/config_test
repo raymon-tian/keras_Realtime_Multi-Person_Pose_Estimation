@@ -18,6 +18,7 @@ crop_size_x = 368
 crop_size_y = 368
 np = 56
 stride = 8
+padValue = 128
 
 [models]
 ## don't edit this part
@@ -28,12 +29,12 @@ batch_size = 1
 
 #caffemodel = '../../model/_trained_COCO/pose_iter_440000.caffemodel'
 #deployFile = '../../model/_trained_COCO/pose_deploy.prototxt'
-keras_model_weights = ./exp1/exp1_weights_09_1559.8949.hdf5
+keras_model_weights = ./exp1/exp1_weights_13_1546.2438.hdf5
 keras_model_json = ./exp1/model.json
 description = COCO Pose56 Two-level Linevec
 boxsize = 368
 # 为什么是128
-padValue = 128
+
 # np = 12
 # 是因为CNN将原图缩小了的原因
 

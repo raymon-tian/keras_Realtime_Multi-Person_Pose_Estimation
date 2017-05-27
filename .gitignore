@@ -2,3 +2,4 @@
 /train/exp1/*
 /model/*
 *.pyc
+/sample_image/*

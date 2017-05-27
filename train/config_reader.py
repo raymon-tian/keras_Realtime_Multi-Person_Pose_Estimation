@@ -9,9 +9,9 @@ def config_test_reader():
     model_id = param['modelID']
     model = config['models'][model_id]
     model['boxsize'] = int(model['boxsize'])
-    model['padValue'] = int(model['padValue'])
     model['batch_size'] = int(model['batch_size'])
 
+    param['padValue'] = int(param['padValue'])
     param['stride'] = int(param['stride'])
     param['crop_size_x'] = int(param['crop_size_x'])
     param['crop_size_y'] = int(param['crop_size_y'])
