@@ -3,18 +3,21 @@ import numpy as np
 
 
 def config_test_reader():
-    config = ConfigObj('config')
+    config = ConfigObj('config_test')
 
     param = config['param']
     model_id = param['modelID']
     model = config['models'][model_id]
     model['boxsize'] = int(model['boxsize'])
-    model['stride'] = int(model['stride'])
     model['padValue'] = int(model['padValue'])
-    #param['starting_range'] = float(param['starting_range'])
-    #param['ending_range'] = float(param['ending_range'])
+    model['batch_size'] = int(model['batch_size'])
+
+    param['stride'] = int(param['stride'])
+    param['crop_size_x'] = int(param['crop_size_x'])
+    param['crop_size_y'] = int(param['crop_size_y'])
+    param['np'] = int(param['np'])
     param['octave'] = int(param['octave'])
-    param['use_gpu'] = int(param['use_gpu'])
+    # param['use_gpu'] = int(param['use_gpu'])
     param['starting_range'] = float(param['starting_range'])
     param['ending_range'] = float(param['ending_range'])
     param['scale_search'] = map(float, param['scale_search'])
@@ -25,7 +28,7 @@ def config_test_reader():
     param['min_num'] = int(param['min_num'])
     param['crop_ratio'] = float(param['crop_ratio'])
     param['bbox_ratio'] = float(param['bbox_ratio'])
-    param['GPUdeviceNumber'] = int(param['GPUdeviceNumber'])
+    # param['GPUdeviceNumber'] = int(param['GPUdeviceNumber'])
 
     return param, model
 

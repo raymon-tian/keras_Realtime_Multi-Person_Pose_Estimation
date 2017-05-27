@@ -1,2 +1,4 @@
-.idea/
-train/exp1
+/.idea/*
+/train/exp1/*
+/model/*
+*.pyc

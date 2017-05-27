@@ -1,14 +1,5 @@
 [param]
-
-# CPU mode or GPU mode
-use_gpu = 1
-
-# GPU device number (doesn't matter for CPU mode)
-GPUdeviceNumber = 0
-
-# Select model (default: 1)
 modelID = 1
-
 # Look in matlab counterpart for explanation
 octave = 3
 starting_range = 0.8
@@ -23,18 +14,28 @@ mid_num = 10
 crop_ratio = 2.5
 bbox_ratio = 0.25
 
+crop_size_x = 368
+crop_size_y = 368
+np = 56
+stride = 8
+
 [models]
 ## don't edit this part
 
 [[1]]
-caffemodel = '../../model/_trained_COCO/pose_iter_440000.caffemodel'
-deployFile = '../../model/_trained_COCO/pose_deploy.prototxt'
-description = 'COCO Pose56 Two-level Linevec'
+batch_size = 1
+
+
+#caffemodel = '../../model/_trained_COCO/pose_iter_440000.caffemodel'
+#deployFile = '../../model/_trained_COCO/pose_deploy.prototxt'
+keras_model_weights = ./exp1/exp1_weights_09_1559.8949.hdf5
+keras_model_json = ./exp1/model.json
+description = COCO Pose56 Two-level Linevec
 boxsize = 368
 # 为什么是128
 padValue = 128
-np = 12
+# np = 12
 # 是因为CNN将原图缩小了的原因
-stride = 8
+
 # error 14-'right_eye'	    15-'left_eye'   16-'right_ear'  17-'left_ear'
-part_str = [nose, neck, Rsho, Relb, Rwri, Lsho, Lelb, Lwri, Rhip, Rkne, Rank, Lhip, Lkne, Lank, Leye, Reye, Lear, Rear, pt19]
+part_str = [nose, neck, Rsho, Relb, Rwri, Lsho, Lelb, Lwri, Rhip, Rkne, Rank, Lhip, Lkne, Lank, Reye, Leye, Rear, Lear, pt19]
